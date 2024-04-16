@@ -3,7 +3,7 @@ import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useTasks } from '../context/TaskContent'
 import DateTimePicker from '@react-native-community/datetimepicker'
 
-function AddTaskScreen() {
+function AddTaskScreen({ navigation }) {
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
     const [date, setDate] = useState(new Date())
@@ -11,9 +11,22 @@ function AddTaskScreen() {
     const { addTask } = useTasks();
 
     const handleAddTask = () => {
+        if (newTaskTitle&&taskDescription){
         addTask(newTaskTitle, taskDescription);
         setNewTaskTitle('');
         setTaskDescription('')
+        navigation.navigate('Todo')  
+    }
+        
+        else {
+            Alert.alert(
+                "Missing information", 
+                "Please enter both a task title and description.", 
+                [
+                    { text: "OK" } 
+                ]
+            );
+        }
     };
 
 

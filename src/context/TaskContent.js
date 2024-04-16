@@ -1,4 +1,3 @@
-// TasksContext.js
 import React, { createContext, useState, useContext } from 'react';
 
 const TasksContext = createContext();
@@ -6,19 +5,27 @@ const TasksContext = createContext();
 export const useTasks = () => useContext(TasksContext);
 
 export const TasksProvider = ({ children }) => {
+    // State for active tasks
     const [tasks, setTasks] = useState([{
-        id: 1, title: "cook", created: new Date().toLocaleString(), description: "cookd healthy food"
-    }
-    ]);
+        id: 1, title: "Cook", created: new Date().toLocaleString(), description: "Cook healthy food" // Corrected a typo here
+    }]);
 
+    // State for completed tasks
     const [completedTasks, setCompletedTasks] = useState([]);
 
     const moveCompletedTasks = (id) => {
+        const taskToMove = tasks.find(task => task.id === id); 
+        if (taskToMove) { 
+            setTasks(tasks.filter(task => task.id !== id)); 
+            setCompletedTasks([...completedTasks, taskToMove]); 
+        }
+    };
 
-        const taskToMove = tasks.find(task => task.id === id);
-        if (taskToMove) {
-            setTasks(tasks.filter(task => task.id !== id));
-            setCompletedTasks([...completedTasks, taskToMove]);
+    const moveBackToActive = (id) => {
+        const taskToMoveBack = completedTasks.find(task => task.id === id);
+        if (taskToMoveBack) {
+            setCompletedTasks(completedTasks.filter(task => task.id !== id));
+            setTasks([...tasks, { ...taskToMoveBack, created: new Date().toLocaleString() }]);
         }
     };
 
@@ -37,11 +44,11 @@ export const TasksProvider = ({ children }) => {
     };
 
     const deleteTask = (id) => {
-        setTasks(tasks.filter(task => task.id !== id));
+        setTasks(tasks.filter(task => task.id !== id)); 
     };
 
     return (
-        <TasksContext.Provider value={{ tasks, addTask, deleteTask, editTask, moveCompletedTasks }}>
+        <TasksContext.Provider value={{ tasks, addTask, deleteTask, editTask, moveCompletedTasks, completedTasks,moveBackToActive }}>
             {children}
         </TasksContext.Provider>
     );
