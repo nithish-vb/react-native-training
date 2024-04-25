@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTasks } from "../context/TaskContent";
+import { useIsFocused } from '@react-navigation/native';
 import {
   View,
   FlatList,
@@ -13,7 +14,7 @@ import {
 } from "react-native";
 
 function TodoScreen() {
-  const { tasks, deleteTask, editTask, moveCompletedTasks } = useTasks();
+  const { tasks, deleteTask, editTask, moveCompletedTasks,setTasks } = useTasks();
   const [expandedTaskId, setExpandedTaskId] = useState(null); 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState({
@@ -21,6 +22,21 @@ function TodoScreen() {
     title: "",
     description: "",
   });
+  const isFocused = useIsFocused();
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:8080/todos');
+      const jsonTodos = await response.json();
+      setTasks(jsonTodos);
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+    }
+    };
+
+  useEffect(()=>{
+    fetchData()
+},[isFocused])
 
   const handlePress = (id) => {
     if (expandedTaskId === id) {
@@ -48,11 +64,30 @@ function TodoScreen() {
     setEditingTask((prev) => ({ ...prev, [name]: value }));
   };
 
+  function deleteTodo(id) {
+    fetch(`http://10.0.2.2:8080/todos/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); 
+        }
+        throw new Error('Delete operation failed.');
+    })
+    
+    .catch(error => console.error('Error:', error));
+    fetchData()
+}
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+      
         data={tasks}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item,index) => item.id+index}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() => handlePress(item.id)}
@@ -73,7 +108,7 @@ function TodoScreen() {
                         <Text style={styles.buttonText}>Edit</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        onPress={() => deleteTask(item.id)}
+                        onPress={() => deleteTodo(item.id)}
                         style={styles.deleteButton}
                       >
                         <Text style={styles.buttonText}>Delete</Text>

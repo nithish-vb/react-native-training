@@ -7,7 +7,7 @@ export const useTasks = () => useContext(TasksContext);
 export const TasksProvider = ({ children }) => {
     // State for active tasks
     const [tasks, setTasks] = useState([{
-        id: 1, title: "Cook", created: new Date().toLocaleString(), description: "Cook healthy food" // Corrected a typo here
+        //id: 1, title: "Cook", created: new Date().toLocaleString(), description: "Cook healthy food" // Corrected a typo here
     }]);
 
     // State for completed tasks
@@ -32,7 +32,7 @@ export const TasksProvider = ({ children }) => {
     const editTask = (editedTask) => {
         const updatedTasks = tasks.map(task => {
             if (task.id === editedTask.id) {
-                return { ...task, title: editedTask.title, description: editedTask.description };
+                return { ...task, title: editedTask.title, description: editedTask.description, };
             }
             return task;
         });
@@ -48,7 +48,7 @@ export const TasksProvider = ({ children }) => {
     };
 
     return (
-        <TasksContext.Provider value={{ tasks, addTask, deleteTask, editTask, moveCompletedTasks, completedTasks,moveBackToActive }}>
+        <TasksContext.Provider value={{ tasks, addTask, deleteTask, editTask, moveCompletedTasks, completedTasks,moveBackToActive, setTasks }}>
             {children}
         </TasksContext.Provider>
     );

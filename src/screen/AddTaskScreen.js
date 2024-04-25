@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useTasks } from '../context/TaskContent'
+import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker'
 
 function AddTaskScreen({ navigation }) {
@@ -10,12 +11,27 @@ function AddTaskScreen({ navigation }) {
     const [open, setOpen] = useState(false)
     const { addTask } = useTasks();
 
+   
+   
+
     const handleAddTask = () => {
+        const newtask={ id: Date.now().toString(), title: newTaskTitle, created: new Date().toLocaleString(), description: taskDescription }
         if (newTaskTitle&&taskDescription){
-        addTask(newTaskTitle, taskDescription);
         setNewTaskTitle('');
         setTaskDescription('')
         navigation.navigate('Todo')  
+
+        fetch('http://10.0.2.2:8080/todos', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json', 
+    },
+    body: JSON.stringify(newtask), 
+})
+.then(response => response.json())  
+.catch((error) => {
+    console.error('Error:', error); // Log any errors
+})
     }
         
         else {
@@ -60,6 +76,7 @@ function AddTaskScreen({ navigation }) {
                 }}
             /> */}
             <Button title="Add Task" onPress={handleAddTask} />
+            
         </View>
     );
 }
